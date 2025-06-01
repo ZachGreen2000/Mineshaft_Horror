@@ -6,6 +6,10 @@ public class crawlTrigger : MonoBehaviour
     {
         if (obj.CompareTag("crawlZone"))
         {
+            if (PlayerMovement.Instance.isCrawling != true)
+            {
+                PlayerMovement.Instance.Crawl();
+            }
             Debug.Log("Collided");
         }
     }

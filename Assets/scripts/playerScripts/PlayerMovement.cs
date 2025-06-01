@@ -18,6 +18,9 @@ public class PlayerMovement : MonoBehaviour
     public float walkSpeed = 5;
     public float rotateSpeed = 5;
     public float jumpSpeed = 5;
+    public bool isCrawling = false;
+
+    public static PlayerMovement Instance;
     // enables player action map from input system
     private void OnEnable()
     {
@@ -31,6 +34,8 @@ public class PlayerMovement : MonoBehaviour
     // gets all acitons
     private void Awake()
     {
+        Instance = this;
+
         moveAction = InputSystem.actions.FindAction("Move");
         lookAction = InputSystem.actions.FindAction("Look");
         jumpAction = InputSystem.actions.FindAction("Jump");
@@ -75,6 +80,9 @@ public class PlayerMovement : MonoBehaviour
     // initiates crawl position for player
     public void Crawl()
     {
-
+        isCrawling = true;
+        float rotateDown = 90;
+        Quaternion rotation = Quaternion.Euler(rotateDown, 0, 0);
+        rigidbody.transform.rotation = Quaternion.Slerp(rigidbody.rotation, rotation, rotateSpeed * Time.fixedDeltaTime);
     }
 }
