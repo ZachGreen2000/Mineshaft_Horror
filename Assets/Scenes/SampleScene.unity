@@ -314,7 +314,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.48, z: 0.017}
+  m_LocalPosition: {x: 0, y: 0.446, z: 0.017}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -908,6 +908,10 @@ MonoBehaviour:
   rotateSpeed: 5
   jumpSpeed: 5
   isCrawling: 0
+  crouchingSpeed: 2
+  targetFov: 30
+  fovSpeed: 2
+  cam: {fileID: 330585545}
 --- !u!1 &1777544785
 GameObject:
   m_ObjectHideFlags: 0

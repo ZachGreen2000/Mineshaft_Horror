@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -13,12 +14,26 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 moveAmt;
     private Vector2 lookAmt;
     private Rigidbody rigidbody;
+    private CapsuleCollider collider;
+
+    //movement variables for the crouching position
+    private float ColliderSizeTarget = 0.85f;
+    private float ColliderPosTarget = -0.52f;
+    private float crawlHeight = 0.987f;
 
     [Header("Movement Variables")]
     public float walkSpeed = 5;
     public float rotateSpeed = 5;
     public float jumpSpeed = 5;
     public bool isCrawling = false;
+    public float crouchingSpeed;
+
+    [Header("Camera Variables")]
+    public float targetFov;
+    public float fovSpeed;
+
+    [Header("World Objects")]
+    public Camera cam;
 
     public static PlayerMovement Instance;
     // enables player action map from input system
@@ -41,6 +56,7 @@ public class PlayerMovement : MonoBehaviour
         jumpAction = InputSystem.actions.FindAction("Jump");
 
         rigidbody = GetComponent<Rigidbody>();
+        collider = GetComponent<CapsuleCollider>();
     }
     // takes values from actions such as key press and mouse position
     private void Update()
@@ -81,8 +97,23 @@ public class PlayerMovement : MonoBehaviour
     public void Crawl()
     {
         isCrawling = true;
-        float rotateDown = 90;
-        Quaternion rotation = Quaternion.Euler(rotateDown, 0, 0);
-        rigidbody.transform.rotation = Quaternion.Slerp(rigidbody.rotation, rotation, rotateSpeed * Time.fixedDeltaTime);
+        Vector3 camPos = cam.transform.localPosition;
+        Vector3 crawlCamPos = new Vector3(camPos.x, camPos.y - crawlHeight, camPos.z);
+        StartCoroutine(SmoothCrawl(crawlCamPos));
+        Debug.Log("Cam position" + cam.transform.localPosition);
+
+        collider.height = ColliderSizeTarget;
+        collider.center = new Vector3(collider.center.x, ColliderPosTarget, collider.center.z);
+         
+    }
+    // process smooth crawl from standing the crouch
+    IEnumerator SmoothCrawl(Vector3 crawlTarget)
+    {
+        while (Vector3.Distance(cam.transform.localPosition, crawlTarget) > 0.01f)
+        {
+            cam.transform.localPosition = Vector3.Lerp(cam.transform.localPosition, crawlTarget, crouchingSpeed * Time.deltaTime);
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetFov, fovSpeed * Time.deltaTime);
+            yield return null;
+        }
     }
 }
