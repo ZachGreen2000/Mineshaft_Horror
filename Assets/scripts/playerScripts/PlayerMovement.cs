@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using UnityEngine.Splines;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -27,6 +28,10 @@ public class PlayerMovement : MonoBehaviour
     public float jumpSpeed = 5;
     public bool isCrawling = false;
     public float crouchingSpeed;
+    public float crawlingSpeed = 2;
+    public bool isOnSpline = false;
+    public bool canWalk = true;
+    private float splinePos = 0f;
 
     [Header("Camera Variables")]
     public float targetFov;
@@ -34,6 +39,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("World Objects")]
     public Camera cam;
+    public SplineContainer spline1;
 
     public static PlayerMovement Instance;
     // enables player action map from input system
@@ -68,6 +74,11 @@ public class PlayerMovement : MonoBehaviour
         {
             Jump();
         }
+
+        if (isOnSpline)
+        {
+            caveCrawlNavigate();
+        }
     }
     // jumps by applying force to rigidbody
     public void Jump()
@@ -77,8 +88,11 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Walking();
-        Rotating();
+        if (canWalk)
+        {
+            Walking();
+            Rotating();
+        }
     }
     // moves rigidbody based on key press from action map
     public void Walking()
@@ -100,6 +114,8 @@ public class PlayerMovement : MonoBehaviour
         Vector3 camPos = cam.transform.localPosition;
         Vector3 crawlCamPos = new Vector3(camPos.x, camPos.y - crawlHeight, camPos.z);
         StartCoroutine(SmoothCrawl(crawlCamPos));
+        isOnSpline = true;
+        canWalk = false;
         Debug.Log("Cam position" + cam.transform.localPosition);
 
         collider.height = ColliderSizeTarget;
@@ -115,5 +131,20 @@ public class PlayerMovement : MonoBehaviour
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetFov, fovSpeed * Time.deltaTime);
             yield return null;
         }
+    }
+    // this function controls the movement along the spline for the cave crawling
+    public void caveCrawlNavigate()
+    {
+        splinePos += moveAmt.y * crawlingSpeed * Time.deltaTime;
+        splinePos = Mathf.Clamp01(splinePos);
+
+        // takes splines position and rotation to determine player movement
+        var spline = spline1.Spline;
+        Vector3 position = spline.EvaluatePosition(splinePos);
+        Vector3 tangent = spline.EvaluateTangent(splinePos);
+        Vector3 finalPosition = new Vector3(position.x - 4, position.y + 1, position.z);
+
+        this.transform.position = finalPosition;
+        this.transform.rotation = Quaternion.LookRotation(tangent);
     }
 }
