@@ -70,6 +70,11 @@ public class PlayerMovement : MonoBehaviour
         moveAmt = moveAction.ReadValue<Vector2>();
         lookAmt = lookAction.ReadValue<Vector2>();
 
+        if (isCrawling)
+        {
+            lookAmt.y = 0;
+        }
+
         if (jumpAction.WasPressedThisFrame())
         {
             Jump();
