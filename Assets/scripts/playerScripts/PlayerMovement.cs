@@ -36,6 +36,10 @@ public class PlayerMovement : MonoBehaviour
     [Header("Camera Variables")]
     public float targetFov;
     public float fovSpeed;
+    private float cameraPitch = 0f;
+    private float baseCrawlPitch = 0f;
+    public float crawlPitchLimit = 15f;
+
 
     [Header("World Objects")]
     public Camera cam;
@@ -63,6 +67,8 @@ public class PlayerMovement : MonoBehaviour
 
         rigidbody = GetComponent<Rigidbody>();
         collider = GetComponent<CapsuleCollider>();
+
+        cameraPitch = cam.transform.localEulerAngles.x;
     }
     // takes values from actions such as key press and mouse position
     private void Update()
@@ -79,6 +85,8 @@ public class PlayerMovement : MonoBehaviour
         {
             caveCrawlNavigate();
         }
+
+        HandleCameraRotation();
     }
     // jumps by applying force to rigidbody
     public void Jump()
@@ -120,7 +128,11 @@ public class PlayerMovement : MonoBehaviour
 
         collider.height = ColliderSizeTarget;
         collider.center = new Vector3(collider.center.x, ColliderPosTarget, collider.center.z);
-         
+
+        baseCrawlPitch = cam.transform.localEulerAngles.x;
+        if (baseCrawlPitch > 180f) baseCrawlPitch -= 360f; // Convert to signed angle
+
+
     }
     // process smooth crawl from standing the crouch
     IEnumerator SmoothCrawl(Vector3 crawlTarget)
@@ -147,4 +159,21 @@ public class PlayerMovement : MonoBehaviour
         this.transform.position = finalPosition;
         this.transform.rotation = Quaternion.LookRotation(tangent);
     }
+    
+    private void HandleCameraRotation()
+    {
+        float pitchInput = lookAmt.y * rotateSpeed * Time.deltaTime;
+        cameraPitch -= pitchInput;
+
+        if (isCrawling)
+        {
+            float minPitch = baseCrawlPitch - crawlPitchLimit;
+            float maxPitch = baseCrawlPitch + crawlPitchLimit;
+            cameraPitch = Mathf.Clamp(cameraPitch, minPitch, maxPitch);
+        }
+
+        Vector3 camEuler = cam.transform.localEulerAngles;
+        cam.transform.localEulerAngles = new Vector3(cameraPitch, camEuler.y, 0);
+    }
+
 }
