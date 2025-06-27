@@ -22,6 +22,9 @@ public class PlayerMovement : MonoBehaviour
     private float ColliderPosTarget = -0.52f;
     private float crawlHeight = 0.987f;
 
+    [Header("Animation")]
+    public Animator anim;
+
     [Header("Movement Variables")]
     public float walkSpeed = 5;
     public float rotateSpeed = 5;
@@ -100,7 +103,16 @@ public class PlayerMovement : MonoBehaviour
         {
             Walking();
             Rotating();
+            // movement detection for animation
+            if (rigidbody.velocity.magnitude > 0)
+            {
+                anim.SetBool("isWalking", true);
+            }else
+            {
+                anim.SetBool("isWalking", false);
+            }
         }
+        
     }
     // moves rigidbody based on key press from action map
     public void Walking()
