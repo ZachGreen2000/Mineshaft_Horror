@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
     private InputAction moveAction;
     private InputAction lookAction;
     private InputAction jumpAction;
+    public InputAction interactAction;
 
     private Vector2 moveAmt;
     private Vector2 lookAmt;
@@ -67,6 +68,7 @@ public class PlayerMovement : MonoBehaviour
         moveAction = InputSystem.actions.FindAction("Move");
         lookAction = InputSystem.actions.FindAction("Look");
         jumpAction = InputSystem.actions.FindAction("Jump");
+        interactAction = InputSystem.actions.FindAction("Interact");
 
         rigidbody = GetComponent<Rigidbody>();
         collider = GetComponent<CapsuleCollider>();
@@ -104,7 +106,7 @@ public class PlayerMovement : MonoBehaviour
             Walking();
             Rotating();
             // movement detection for animation
-            if (rigidbody.velocity.magnitude > 0)
+            if (rigidbody.linearVelocity.magnitude > 0)
             {
                 anim.SetBool("isWalking", true);
             }else
