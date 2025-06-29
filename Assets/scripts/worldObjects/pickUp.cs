@@ -33,6 +33,7 @@ public class pickUp : MonoBehaviour
                 // send item reference to game manager and set object innactive
                 string itemTag = this.gameObject.tag;
                 GameManager.Instance.itemPickUp(itemTag);
+                // ----- Add courotine to delay this section below ------ //
                 this.gameObject.SetActive(false);
                 popUp.gameObject.SetActive(false);
             }

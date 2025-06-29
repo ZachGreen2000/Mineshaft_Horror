@@ -90,9 +90,15 @@ public class PlayerMovement : MonoBehaviour
         {
             caveCrawlNavigate();
         }
+        // run grab animation
+        if (interactAction.WasPressedThisFrame() && !anim.GetBool("isGrabbing"))
+        {
+            anim.SetBool("isGrabbing", true);
+        }
 
         HandleCameraRotation();
     }
+
     // jumps by applying force to rigidbody
     public void Jump()
     {
@@ -105,23 +111,33 @@ public class PlayerMovement : MonoBehaviour
         {
             Walking();
             Rotating();
-            // movement detection for animation
-            if (rigidbody.linearVelocity.magnitude > 0)
-            {
-                anim.SetBool("isWalking", true);
-            }else
-            {
-                anim.SetBool("isWalking", false);
-            }
         }
         
     }
+
     // moves rigidbody based on key press from action map
     public void Walking()
     {
         rigidbody.MovePosition(rigidbody.position + transform.forward * moveAmt.y * walkSpeed * Time.fixedDeltaTime);
         rigidbody.MovePosition(rigidbody.position + transform.right * moveAmt.x * walkSpeed * Time.fixedDeltaTime);
+        // movement detection for animation, runs candle hold animation if player items list contains candle
+        if (moveAmt != new Vector2(0,0) && !GameManager.Instance.checkItems("candle"))
+        {
+            anim.SetBool("isWalking", true);
+            anim.SetBool("hasCandle", false);
+        }
+        else if (GameManager.Instance.checkItems("candle"))
+        {
+            anim.SetBool("hasCandle", true);
+            anim.SetBool("isWalking", false);
+        }
+        else
+        {
+            anim.SetBool("hasCandle", false);
+            anim.SetBool("isWalking", false);
+        }
     }
+
     // rotates rigidbody based on mouse input from action map
     public void Rotating()
     {
@@ -129,6 +145,7 @@ public class PlayerMovement : MonoBehaviour
         Quaternion deltaRotation = Quaternion.Euler(0, rotationAmount, 0);
         rigidbody.MoveRotation(rigidbody.rotation * deltaRotation);
     }
+
     // initiates crawl position for player
     public void Crawl()
     {
@@ -148,6 +165,7 @@ public class PlayerMovement : MonoBehaviour
 
 
     }
+
     // process smooth crawl from standing the crouch
     IEnumerator SmoothCrawl(Vector3 crawlTarget)
     {
@@ -158,6 +176,7 @@ public class PlayerMovement : MonoBehaviour
             yield return null;
         }
     }
+
     // this function controls the movement along the spline for the cave crawling
     public void caveCrawlNavigate()
     {
@@ -173,7 +192,8 @@ public class PlayerMovement : MonoBehaviour
         this.transform.position = finalPosition;
         this.transform.rotation = Quaternion.LookRotation(tangent);
     }
-    
+
+    // this function clamps the camera to the spline tangent direction to limit cam rotation
     private void HandleCameraRotation()
     {
         float pitchInput = lookAmt.y * rotateSpeed * Time.deltaTime;

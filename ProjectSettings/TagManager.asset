@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - crawlZone
+  - candle
   layers:
   - Default
   - TransparentFX

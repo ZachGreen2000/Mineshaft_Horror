@@ -32,4 +32,10 @@ public class GameManager : MonoBehaviour
         pickedItems.Add(tag);
         // UI needs to be made
     }
+
+    // this function is for other scripts to view the contents of the list of items
+    public bool checkItems(string item)
+    {
+        return pickedItems.Contains(item);
+    }
 }
