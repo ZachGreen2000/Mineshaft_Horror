@@ -1,13 +1,17 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
 
-    public static GameManager instance;
+    public static GameManager Instance;
+
+    private List<string> pickedItems;
 
     void Awake()
     {
-        instance = this;
+        Instance = this;
+        pickedItems = new List<string>();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -20,5 +24,12 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         
+    }
+
+    // this function taked the tag of the item interacted with and uses it to display UI and store items
+    public void itemPickUp(string tag)
+    {
+        pickedItems.Add(tag);
+        // UI needs to be made
     }
 }
