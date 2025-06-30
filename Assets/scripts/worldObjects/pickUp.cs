@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using TMPro;
 
 public class pickUp : MonoBehaviour
@@ -9,6 +10,8 @@ public class pickUp : MonoBehaviour
     public float textScale;
     [Range(0, 1f)]
     public float textHeight;
+
+    public int delay;
 
     private GameObject player;
 
@@ -34,8 +37,14 @@ public class pickUp : MonoBehaviour
                 string itemTag = this.gameObject.tag;
                 GameManager.Instance.itemPickUp(itemTag);
                 // ----- Add courotine to delay this section below ------ //
-                this.gameObject.SetActive(false);
-                popUp.gameObject.SetActive(false);
+                if (this.gameObject.tag != "candle")
+                {
+                    StartCoroutine(itemDelay(delay));
+                }else
+                {
+                    this.gameObject.SetActive(false);
+                    popUp.gameObject.SetActive(false);
+                }
             }
         }
     }
@@ -61,5 +70,13 @@ public class pickUp : MonoBehaviour
         {
             popUp.gameObject.SetActive(false);
         }
+    }
+
+    // for the delay of object set innactive to allow for animation
+    IEnumerator itemDelay(int del)
+    {
+        yield return new WaitForSeconds(del);
+        this.gameObject.SetActive(false);
+        popUp.gameObject.SetActive(false);
     }
 }

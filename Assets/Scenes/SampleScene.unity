@@ -1265,8 +1265,8 @@ MonoBehaviour:
   rotateSpeed: 5
   jumpSpeed: 5
   isCrawling: 0
-  crouchingSpeed: 2
-  crawlingSpeed: 2
+  crouchingSpeed: 0.2
+  crawlingSpeed: 0.2
   isOnSpline: 0
   canWalk: 1
   targetFov: 30
@@ -1274,6 +1274,7 @@ MonoBehaviour:
   crawlPitchLimit: 15
   cam: {fileID: 330585545}
   spline1: {fileID: 1331020721}
+  playerArms: {fileID: 1474921248}
 --- !u!1001 &1474921246
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1962,6 +1963,7 @@ MonoBehaviour:
   popUp: {fileID: 1977990850}
   textScale: 0.06
   textHeight: 0.3
+  delay: 4
 --- !u!1 &1777544785
 GameObject:
   m_ObjectHideFlags: 0

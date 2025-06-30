@@ -48,6 +48,7 @@ public class PlayerMovement : MonoBehaviour
     [Header("World Objects")]
     public Camera cam;
     public SplineContainer spline1;
+    public GameObject playerArms;
 
     public static PlayerMovement Instance;
     // enables player action map from input system
@@ -152,7 +153,9 @@ public class PlayerMovement : MonoBehaviour
         isCrawling = true;
         Vector3 camPos = cam.transform.localPosition;
         Vector3 crawlCamPos = new Vector3(camPos.x, camPos.y - crawlHeight, camPos.z);
-        StartCoroutine(SmoothCrawl(crawlCamPos));
+        Vector3 armPos = playerArms.transform.localPosition;
+        Vector3 crawlArmPos = new Vector3(armPos.x, armPos.y - crawlHeight, armPos.z);
+        StartCoroutine(SmoothCrawl(crawlCamPos, crawlArmPos));
         isOnSpline = true;
         canWalk = false;
         Debug.Log("Cam position" + cam.transform.localPosition);
@@ -167,14 +170,18 @@ public class PlayerMovement : MonoBehaviour
     }
 
     // process smooth crawl from standing the crouch
-    IEnumerator SmoothCrawl(Vector3 crawlTarget)
+    IEnumerator SmoothCrawl(Vector3 crawlTarget, Vector3 crawlArmPos)
     {
         while (Vector3.Distance(cam.transform.localPosition, crawlTarget) > 0.01f)
         {
+            anim.SetBool("crawlTransition", true);
             cam.transform.localPosition = Vector3.Lerp(cam.transform.localPosition, crawlTarget, crouchingSpeed * Time.deltaTime);
+            playerArms.transform.localPosition = Vector3.Lerp(playerArms.transform.localPosition, crawlArmPos, crouchingSpeed * Time.deltaTime);
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetFov, fovSpeed * Time.deltaTime);
             yield return null;
         }
+        anim.SetBool("crawlTransition", false);
+        anim.SetBool("isCrawling", true);
     }
 
     // this function controls the movement along the spline for the cave crawling
@@ -182,6 +189,11 @@ public class PlayerMovement : MonoBehaviour
     {
         splinePos += moveAmt.y * crawlingSpeed * Time.deltaTime;
         splinePos = Mathf.Clamp01(splinePos);
+        // running crawling animation
+        if (moveAction.IsPressed())
+        {
+            anim.SetTrigger("crawlTrigger");
+        }
 
         // takes splines position and rotation to determine player movement
         var spline = spline1.Spline;
