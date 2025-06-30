@@ -1265,7 +1265,7 @@ MonoBehaviour:
   rotateSpeed: 5
   jumpSpeed: 5
   isCrawling: 0
-  crouchingSpeed: 0.2
+  crouchingSpeed: 0.5
   crawlingSpeed: 0.2
   isOnSpline: 0
   canWalk: 1

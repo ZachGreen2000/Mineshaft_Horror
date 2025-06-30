@@ -22,6 +22,7 @@ public class PlayerMovement : MonoBehaviour
     private float ColliderSizeTarget = 0.85f;
     private float ColliderPosTarget = -0.52f;
     private float crawlHeight = 0.987f;
+    private float armCrawlHeight = 0.850f;
 
     [Header("Animation")]
     public Animator anim;
@@ -154,7 +155,7 @@ public class PlayerMovement : MonoBehaviour
         Vector3 camPos = cam.transform.localPosition;
         Vector3 crawlCamPos = new Vector3(camPos.x, camPos.y - crawlHeight, camPos.z);
         Vector3 armPos = playerArms.transform.localPosition;
-        Vector3 crawlArmPos = new Vector3(armPos.x, armPos.y - crawlHeight, armPos.z);
+        Vector3 crawlArmPos = new Vector3(armPos.x, armPos.y - armCrawlHeight, armPos.z);
         StartCoroutine(SmoothCrawl(crawlCamPos, crawlArmPos));
         isOnSpline = true;
         canWalk = false;
@@ -172,7 +173,7 @@ public class PlayerMovement : MonoBehaviour
     // process smooth crawl from standing the crouch
     IEnumerator SmoothCrawl(Vector3 crawlTarget, Vector3 crawlArmPos)
     {
-        while (Vector3.Distance(cam.transform.localPosition, crawlTarget) > 0.01f)
+        while (Vector3.Distance(cam.transform.localPosition, crawlTarget) > 0.05f)
         {
             anim.SetBool("crawlTransition", true);
             cam.transform.localPosition = Vector3.Lerp(cam.transform.localPosition, crawlTarget, crouchingSpeed * Time.deltaTime);
@@ -182,6 +183,14 @@ public class PlayerMovement : MonoBehaviour
         }
         anim.SetBool("crawlTransition", false);
         anim.SetBool("isCrawling", true);
+        // rotate arms slightly
+        playerArms.transform.localRotation = Quaternion.Euler(
+            playerArms.transform.localEulerAngles.x,
+            playerArms.transform.localEulerAngles.y + -10f,
+            playerArms.transform.localEulerAngles.z
+        );
+        cam.transform.localPosition = crawlTarget;
+        playerArms.transform.localPosition = crawlArmPos;
     }
 
     // this function controls the movement along the spline for the cave crawling
