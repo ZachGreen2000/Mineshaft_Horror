@@ -775,8 +775,7 @@ MonoBehaviour:
   SC_Bar: {fileID: 723780587}
   SC_Zone: {fileID: 387420239}
   SC_Input: {fileID: 208435548}
-  SC_Bar_Outline: {fileID: 997382031}
-  SC_Speed: 600
+  SC_Speed: 400
   activateSC: 0
   minZoneWidth: 25
   maxZoneWidth: 60
@@ -1044,7 +1043,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &997382032
 RectTransform:
   m_ObjectHideFlags: 0
