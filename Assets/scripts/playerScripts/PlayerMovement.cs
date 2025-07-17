@@ -276,9 +276,12 @@ public class PlayerMovement : MonoBehaviour
             float minYaw = baseCrawlYaw - crawlYawLimit;
             float maxYaw = baseCrawlYaw + crawlYawLimit;
             cameraYaw = Mathf.Clamp(cameraPitch, minYaw, maxYaw);
+            //Vector3 camEuler = cam.transform.localEulerAngles;
+            cam.transform.localEulerAngles = new Vector3(cameraPitch, cameraYaw, 0);
+        } else
+        {
+            //Vector3 camEuler = cam.transform.localEulerAngles;
+            cam.transform.localEulerAngles = new Vector3(cameraPitch, 0, 0);
         }
-
-        //Vector3 camEuler = cam.transform.localEulerAngles;
-        cam.transform.localEulerAngles = new Vector3(cameraPitch, cameraYaw, 0);
     }
 }

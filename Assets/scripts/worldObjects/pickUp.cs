@@ -13,6 +13,9 @@ public class pickUp : MonoBehaviour
 
     public int delay;
 
+    [Header("GameObjects")]
+    public GameObject candleHoldPos;
+
     private GameObject player;
 
     void Start()
@@ -42,8 +45,10 @@ public class pickUp : MonoBehaviour
                     StartCoroutine(itemDelay(delay));
                 }else
                 {
-                    this.gameObject.SetActive(false);
+                    //this.gameObject.SetActive(false);
                     popUp.gameObject.SetActive(false);
+                    this.gameObject.transform.position = candleHoldPos.transform.position;
+                    this.gameObject.transform.SetParent(candleHoldPos.transform);
                 }
             }
         }
