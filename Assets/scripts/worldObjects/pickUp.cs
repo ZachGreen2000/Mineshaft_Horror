@@ -47,8 +47,10 @@ public class pickUp : MonoBehaviour
                 {
                     //this.gameObject.SetActive(false);
                     popUp.gameObject.SetActive(false);
-                    this.gameObject.transform.position = candleHoldPos.transform.position;
                     this.gameObject.transform.SetParent(candleHoldPos.transform);
+                    this.gameObject.transform.position = (candleHoldPos.transform.position + new Vector3(0, 2f, 0));
+                    Quaternion rotationPos = (candleHoldPos.transform.rotation * Quaternion.Euler(50, 0, 0)); // use ueler for adding rotation offset
+                    this.gameObject.transform.rotation = rotationPos;
                 }
             }
         }
