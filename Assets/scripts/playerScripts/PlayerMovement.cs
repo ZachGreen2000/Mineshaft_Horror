@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.Splines;
 using System.Linq;
 
@@ -53,8 +54,9 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("World Objects")]
     public Camera cam;
-    public SplineContainer spline1;
     public GameObject playerArms;
+    public List<SplineContainer> splines = new List<SplineContainer>(); // initialises list
+    private SplineContainer spline1;
 
     public static PlayerMovement Instance;
     // enables player action map from input system
@@ -105,6 +107,12 @@ public class PlayerMovement : MonoBehaviour
         }
 
         HandleCameraRotation();
+        // to ovveride crawl animation
+        if (canWalk)
+        {
+            anim.SetBool("isCrawling", false);
+            anim.SetBool("crawlTransition", false);
+        }
     }
 
     // jumps by applying force to rigidbody
@@ -157,6 +165,7 @@ public class PlayerMovement : MonoBehaviour
     // initiates crawl position for player
     public void Crawl()
     {
+        spline1 = splines[0];
         isCrawling = true;
         Vector3 camPos = cam.transform.localPosition;
         Vector3 crawlCamPos = new Vector3(camPos.x, camPos.y - crawlHeight, camPos.z);
@@ -223,8 +232,29 @@ public class PlayerMovement : MonoBehaviour
         // running crawling animation
         if (moveAction.WasPressedThisFrame() && canCrawlStep)
         {
-            anim.SetTrigger("crawlTrigger");
-            StartCoroutine(crawlDistance());
+            // find and calculate last spline knot in sequence
+            BezierKnot lastKnotLocal = spline1.Spline.Knots.ElementAt(spline1.Spline.Knots.Count() - 1);
+            Vector3 lastKnotWorld = spline1.transform.TransformPoint(lastKnotLocal.Position);
+            if (Vector3.Distance(this.gameObject.transform.position, lastKnotWorld) < 1)
+            {
+                // stop crawling logic, use smooth crawl but with different variables
+                Vector3 camPos = cam.transform.localPosition;
+                Vector3 crawlCamPos = new Vector3(camPos.x, camPos.y + crawlHeight, camPos.z);
+                Vector3 armPos = playerArms.transform.localPosition;
+                Vector3 crawlArmPos = new Vector3(armPos.x, armPos.y + armCrawlHeight, armPos.z);
+                StartCoroutine(SmoothCrawl(crawlCamPos, crawlArmPos, lastKnotWorld));
+                canCrawlStep = false;
+                isCrawling = false;
+                isOnSpline = false;
+                canWalk = true;
+                anim.SetBool("hasCandle", true);
+                splines.RemoveAt(0);
+            } 
+            else
+            {
+                anim.SetTrigger("crawlTrigger");
+                StartCoroutine(crawlDistance());
+            }
         }
     }
 

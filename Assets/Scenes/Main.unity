@@ -31658,6 +31658,38 @@ PrefabInstance:
       propertyPath: spline1
       value: 
       objectReference: {fileID: 2090398739}
+    - target: {fileID: 1759416421878635106, guid: f72d94074ada75d408c50c826a43d422, type: 3}
+      propertyPath: splines.Array.size
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1759416421878635106, guid: f72d94074ada75d408c50c826a43d422, type: 3}
+      propertyPath: 'splines.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2090398739}
+    - target: {fileID: 1759416421878635106, guid: f72d94074ada75d408c50c826a43d422, type: 3}
+      propertyPath: 'splines.Array.data[1]'
+      value: 
+      objectReference: {fileID: 446561130}
+    - target: {fileID: 1759416421878635106, guid: f72d94074ada75d408c50c826a43d422, type: 3}
+      propertyPath: 'splines.Array.data[2]'
+      value: 
+      objectReference: {fileID: 1012881615}
+    - target: {fileID: 1759416421878635106, guid: f72d94074ada75d408c50c826a43d422, type: 3}
+      propertyPath: 'splines.Array.data[3]'
+      value: 
+      objectReference: {fileID: 322211689}
+    - target: {fileID: 1759416421878635106, guid: f72d94074ada75d408c50c826a43d422, type: 3}
+      propertyPath: 'splines.Array.data[4]'
+      value: 
+      objectReference: {fileID: 47577274}
+    - target: {fileID: 1759416421878635106, guid: f72d94074ada75d408c50c826a43d422, type: 3}
+      propertyPath: 'splines.Array.data[5]'
+      value: 
+      objectReference: {fileID: 1031300132}
+    - target: {fileID: 8563222675847658978, guid: f72d94074ada75d408c50c826a43d422, type: 3}
+      propertyPath: m_Constraints
+      value: 112
+      objectReference: {fileID: 0}
     - target: {fileID: 8687937010353550450, guid: f72d94074ada75d408c50c826a43d422, type: 3}
       propertyPath: m_Name
       value: Player
