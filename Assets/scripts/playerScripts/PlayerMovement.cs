@@ -165,6 +165,7 @@ public class PlayerMovement : MonoBehaviour
     // initiates crawl position for player
     public void Crawl()
     {
+        targetFov = 45;
         spline1 = splines[0];
         isCrawling = true;
         Vector3 camPos = cam.transform.localPosition;
@@ -173,8 +174,8 @@ public class PlayerMovement : MonoBehaviour
         Vector3 crawlArmPos = new Vector3(armPos.x, armPos.y - armCrawlHeight, armPos.z);
         BezierKnot knot0Local = spline1.Spline.Knots.ElementAt(0);
         Vector3 knot0World = spline1.transform.TransformPoint(knot0Local.Position);
-        Vector3 targetKnot0Pos = new Vector3(knot0World.x, knot0World.y + 0.9f, knot0World.z); // adding offset
-        StartCoroutine(SmoothCrawl(crawlCamPos, crawlArmPos, targetKnot0Pos));
+        Vector3 targetKnot0Pos = new Vector3(knot0World.x, knot0World.y - 0.1f, knot0World.z); // adding offset
+        StartCoroutine(SmoothCrawl(crawlCamPos, crawlArmPos, targetKnot0Pos, -10f));
         isOnSpline = true;
         canCrawlStep = true;
         canWalk = false;
@@ -190,7 +191,7 @@ public class PlayerMovement : MonoBehaviour
     }
 
     // process smooth crawl from standing the crouch
-    IEnumerator SmoothCrawl(Vector3 crawlTarget, Vector3 crawlArmPos, Vector3 knot0Spline)
+    IEnumerator SmoothCrawl(Vector3 crawlTarget, Vector3 crawlArmPos, Vector3 knot0Spline, float armRotation)
     {
         anim.SetBool("crawlTransition", true);
         float elapsed = 0f;
@@ -217,7 +218,7 @@ public class PlayerMovement : MonoBehaviour
         // rotate arms slightly
         playerArms.transform.localRotation = Quaternion.Euler(
             playerArms.transform.localEulerAngles.x,
-            playerArms.transform.localEulerAngles.y + -10f,
+            playerArms.transform.localEulerAngles.y + armRotation,
             playerArms.transform.localEulerAngles.z
         );
         Debug.Log("SmoothCrawl completed");
@@ -237,18 +238,21 @@ public class PlayerMovement : MonoBehaviour
             Vector3 lastKnotWorld = spline1.transform.TransformPoint(lastKnotLocal.Position);
             if (Vector3.Distance(this.gameObject.transform.position, lastKnotWorld) < 1)
             {
+                Debug.Log("player at last knot");
                 // stop crawling logic, use smooth crawl but with different variables
                 Vector3 camPos = cam.transform.localPosition;
                 Vector3 crawlCamPos = new Vector3(camPos.x, camPos.y + crawlHeight, camPos.z);
                 Vector3 armPos = playerArms.transform.localPosition;
                 Vector3 crawlArmPos = new Vector3(armPos.x, armPos.y + armCrawlHeight, armPos.z);
-                StartCoroutine(SmoothCrawl(crawlCamPos, crawlArmPos, lastKnotWorld));
+                targetFov = 60;
+                StartCoroutine(SmoothCrawl(crawlCamPos, crawlArmPos, lastKnotWorld, 10f));
                 canCrawlStep = false;
                 isCrawling = false;
                 isOnSpline = false;
                 canWalk = true;
                 anim.SetBool("hasCandle", true);
                 splines.RemoveAt(0);
+                splinePos = 0f;
             } 
             else
             {
@@ -265,6 +269,7 @@ public class PlayerMovement : MonoBehaviour
 
         float elapsed = 0f;
         float animationDuration = 1f;
+        float fullAnimDuration = 1.5f;
         float startSplinePos = splinePos;
         float targetSplinePos = Mathf.Clamp01(startSplinePos + 0.05f);
 
@@ -286,6 +291,7 @@ public class PlayerMovement : MonoBehaviour
             this.transform.SetPositionAndRotation(worldPos, Quaternion.LookRotation(worldTan));
             yield return null;
         }
+        yield return new WaitForSeconds(fullAnimDuration);
         splinePos = targetSplinePos;
         canCrawlStep = true;
     }
@@ -312,6 +318,7 @@ public class PlayerMovement : MonoBehaviour
         } else
         {
             //Vector3 camEuler = cam.transform.localEulerAngles;
+            cameraPitch = Mathf.Clamp(cameraPitch, -30, 90);
             cam.transform.localEulerAngles = new Vector3(cameraPitch, 0, 0);
         }
     }
