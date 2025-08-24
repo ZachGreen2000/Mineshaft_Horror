@@ -268,8 +268,8 @@ public class PlayerMovement : MonoBehaviour
         canCrawlStep = false;
 
         float elapsed = 0f;
-        float animationDuration = 1f;
-        float fullAnimDuration = 1.5f;
+        float animationDuration = 1.5f;
+        //float fullAnimDuration = 1.5f;
         float startSplinePos = splinePos;
         float targetSplinePos = Mathf.Clamp01(startSplinePos + 0.05f);
 
@@ -291,7 +291,7 @@ public class PlayerMovement : MonoBehaviour
             this.transform.SetPositionAndRotation(worldPos, Quaternion.LookRotation(worldTan));
             yield return null;
         }
-        yield return new WaitForSeconds(fullAnimDuration);
+        //yield return new WaitForSeconds(fullAnimDuration);
         splinePos = targetSplinePos;
         canCrawlStep = true;
     }
@@ -312,7 +312,7 @@ public class PlayerMovement : MonoBehaviour
 
             float minYaw = baseCrawlYaw - crawlYawLimit;
             float maxYaw = baseCrawlYaw + crawlYawLimit;
-            cameraYaw = Mathf.Clamp(cameraPitch, minYaw, maxYaw);
+            cameraYaw = Mathf.Clamp(cameraYaw, minYaw, maxYaw);
             //Vector3 camEuler = cam.transform.localEulerAngles;
             cam.transform.localEulerAngles = new Vector3(cameraPitch, cameraYaw, 0);
         } else
