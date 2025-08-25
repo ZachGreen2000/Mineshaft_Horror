@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.Splines;
 using System.Linq;
 
@@ -53,8 +54,9 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("World Objects")]
     public Camera cam;
-    public SplineContainer spline1;
     public GameObject playerArms;
+    public List<SplineContainer> splines = new List<SplineContainer>(); // initialises list
+    private SplineContainer spline1;
 
     public static PlayerMovement Instance;
     // enables player action map from input system
@@ -105,6 +107,12 @@ public class PlayerMovement : MonoBehaviour
         }
 
         HandleCameraRotation();
+        // to ovveride crawl animation
+        if (canWalk)
+        {
+            anim.SetBool("isCrawling", false);
+            anim.SetBool("crawlTransition", false);
+        }
     }
 
     // jumps by applying force to rigidbody
@@ -157,6 +165,8 @@ public class PlayerMovement : MonoBehaviour
     // initiates crawl position for player
     public void Crawl()
     {
+        targetFov = 45;
+        spline1 = splines[0];
         isCrawling = true;
         Vector3 camPos = cam.transform.localPosition;
         Vector3 crawlCamPos = new Vector3(camPos.x, camPos.y - crawlHeight, camPos.z);
@@ -164,8 +174,8 @@ public class PlayerMovement : MonoBehaviour
         Vector3 crawlArmPos = new Vector3(armPos.x, armPos.y - armCrawlHeight, armPos.z);
         BezierKnot knot0Local = spline1.Spline.Knots.ElementAt(0);
         Vector3 knot0World = spline1.transform.TransformPoint(knot0Local.Position);
-        Vector3 targetKnot0Pos = new Vector3(knot0World.x, knot0World.y + 0.4f, knot0World.z); // adding offset
-        StartCoroutine(SmoothCrawl(crawlCamPos, crawlArmPos, targetKnot0Pos));
+        Vector3 targetKnot0Pos = new Vector3(knot0World.x, knot0World.y - 0.1f, knot0World.z); // adding offset
+        StartCoroutine(SmoothCrawl(crawlCamPos, crawlArmPos, targetKnot0Pos, -10f));
         isOnSpline = true;
         canCrawlStep = true;
         canWalk = false;
@@ -181,7 +191,7 @@ public class PlayerMovement : MonoBehaviour
     }
 
     // process smooth crawl from standing the crouch
-    IEnumerator SmoothCrawl(Vector3 crawlTarget, Vector3 crawlArmPos, Vector3 knot0Spline)
+    IEnumerator SmoothCrawl(Vector3 crawlTarget, Vector3 crawlArmPos, Vector3 knot0Spline, float armRotation)
     {
         anim.SetBool("crawlTransition", true);
         float elapsed = 0f;
@@ -208,7 +218,7 @@ public class PlayerMovement : MonoBehaviour
         // rotate arms slightly
         playerArms.transform.localRotation = Quaternion.Euler(
             playerArms.transform.localEulerAngles.x,
-            playerArms.transform.localEulerAngles.y + -10f,
+            playerArms.transform.localEulerAngles.y + armRotation,
             playerArms.transform.localEulerAngles.z
         );
         Debug.Log("SmoothCrawl completed");
@@ -223,8 +233,32 @@ public class PlayerMovement : MonoBehaviour
         // running crawling animation
         if (moveAction.WasPressedThisFrame() && canCrawlStep)
         {
-            anim.SetTrigger("crawlTrigger");
-            StartCoroutine(crawlDistance());
+            // find and calculate last spline knot in sequence
+            BezierKnot lastKnotLocal = spline1.Spline.Knots.ElementAt(spline1.Spline.Knots.Count() - 1);
+            Vector3 lastKnotWorld = spline1.transform.TransformPoint(lastKnotLocal.Position);
+            if (Vector3.Distance(this.gameObject.transform.position, lastKnotWorld) < 1)
+            {
+                Debug.Log("player at last knot");
+                // stop crawling logic, use smooth crawl but with different variables
+                Vector3 camPos = cam.transform.localPosition;
+                Vector3 crawlCamPos = new Vector3(camPos.x, camPos.y + crawlHeight, camPos.z);
+                Vector3 armPos = playerArms.transform.localPosition;
+                Vector3 crawlArmPos = new Vector3(armPos.x, armPos.y + armCrawlHeight, armPos.z);
+                targetFov = 60;
+                StartCoroutine(SmoothCrawl(crawlCamPos, crawlArmPos, lastKnotWorld, 10f));
+                canCrawlStep = false;
+                isCrawling = false;
+                isOnSpline = false;
+                canWalk = true;
+                anim.SetBool("hasCandle", true);
+                splines.RemoveAt(0);
+                splinePos = 0f;
+            } 
+            else
+            {
+                anim.SetTrigger("crawlTrigger");
+                StartCoroutine(crawlDistance());
+            }
         }
     }
 
@@ -234,7 +268,8 @@ public class PlayerMovement : MonoBehaviour
         canCrawlStep = false;
 
         float elapsed = 0f;
-        float animationDuration = 1f;
+        float animationDuration = 1.5f;
+        //float fullAnimDuration = 1.5f;
         float startSplinePos = splinePos;
         float targetSplinePos = Mathf.Clamp01(startSplinePos + 0.05f);
 
@@ -242,19 +277,21 @@ public class PlayerMovement : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / animationDuration);
-            splinePos = Mathf.Lerp(startSplinePos, targetSplinePos, t);
+            splinePos = Mathf.Lerp(startSplinePos, targetSplinePos, t); // passes target position into spline
 
             // takes splines position and rotation to determine player movement
             var spline = spline1.Spline;
             Vector3 position = spline.EvaluatePosition(splinePos);
             Vector3 tangent = spline.EvaluateTangent(splinePos);
-            Vector3 finalPosition = new Vector3(position.x - 4.1f, position.y + 1.1f, position.z + 1.1f); // adjust for offset
+            // set to world space
+            Vector3 worldPos = spline1.transform.TransformPoint(position);
+            Vector3 worldTan = spline1.transform.TransformDirection(tangent);
+            Vector3 finalPosition = position; // adjust for offset
 
-            this.transform.position = finalPosition;
-            this.transform.rotation = Quaternion.LookRotation(tangent);
-
+            this.transform.SetPositionAndRotation(worldPos, Quaternion.LookRotation(worldTan));
             yield return null;
         }
+        //yield return new WaitForSeconds(fullAnimDuration);
         splinePos = targetSplinePos;
         canCrawlStep = true;
     }
@@ -275,12 +312,13 @@ public class PlayerMovement : MonoBehaviour
 
             float minYaw = baseCrawlYaw - crawlYawLimit;
             float maxYaw = baseCrawlYaw + crawlYawLimit;
-            cameraYaw = Mathf.Clamp(cameraPitch, minYaw, maxYaw);
+            cameraYaw = Mathf.Clamp(cameraYaw, minYaw, maxYaw);
             //Vector3 camEuler = cam.transform.localEulerAngles;
             cam.transform.localEulerAngles = new Vector3(cameraPitch, cameraYaw, 0);
         } else
         {
             //Vector3 camEuler = cam.transform.localEulerAngles;
+            cameraPitch = Mathf.Clamp(cameraPitch, -30, 90);
             cam.transform.localEulerAngles = new Vector3(cameraPitch, 0, 0);
         }
     }

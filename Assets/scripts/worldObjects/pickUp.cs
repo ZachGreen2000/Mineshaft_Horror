@@ -10,6 +10,10 @@ public class pickUp : MonoBehaviour
     public float textScale;
     [Range(0, 1f)]
     public float textHeight;
+    [Range(-1, 1f)]
+    public float textWidth;
+    [Range(-1, 1f)]
+    public float textDepth;
 
     public int delay;
 
@@ -47,8 +51,10 @@ public class pickUp : MonoBehaviour
                 {
                     //this.gameObject.SetActive(false);
                     popUp.gameObject.SetActive(false);
-                    this.gameObject.transform.position = candleHoldPos.transform.position;
                     this.gameObject.transform.SetParent(candleHoldPos.transform);
+                    this.gameObject.transform.position = (candleHoldPos.transform.position + new Vector3(0, 0, 0));
+                    Quaternion rotationPos = (candleHoldPos.transform.rotation * Quaternion.Euler(50, 0, 0)); // use ueler for adding rotation offset
+                    this.gameObject.transform.rotation = rotationPos;
                 }
             }
         }
@@ -61,7 +67,7 @@ public class pickUp : MonoBehaviour
         {
             popUp.gameObject.SetActive(true);
             Vector3 currentPos = this.gameObject.transform.position;
-            Vector3 desiredPos = new Vector3(currentPos.x, currentPos.y + textHeight, currentPos.z); // applying positional offset for prompt
+            Vector3 desiredPos = new Vector3(currentPos.x + textWidth, currentPos.y + textHeight, currentPos.z + textDepth); // applying positional offset for prompt
             popUp.transform.position = desiredPos;
             // edit scale of prompt
             popUp.transform.localScale = new Vector3(textScale, textScale, textScale);
