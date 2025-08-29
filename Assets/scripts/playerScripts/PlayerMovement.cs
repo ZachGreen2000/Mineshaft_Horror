@@ -327,11 +327,16 @@ public class PlayerMovement : MonoBehaviour
     // this function is for climbing down the rope at the entrance
     public void moveToRope()
     {
-
+        BezierKnot knot0Local = entranceSpline.Spline.Knots.ElementAt(0);
+        Vector3 knot0World = entranceSpline.transform.TransformPoint(knot0Local.Position);
+        StartCoroutine(transitionToRope(knot0World));
+        BezierKnot lastKnotLocal = entranceSpline.Spline.Knots.ElementAt(spline1.Spline.Knots.Count() - 1);
+        Vector3 lastKnotWorld = entranceSpline.transform.TransformPoint(lastKnotLocal.Position);
+        StartCoroutine(climbRope(knot0World, lastKnotWorld));
     }
 
     //enumerator for positioning on spline
-    IEnumerator transitionToRope(Vector3 crawlTarg, Vector3 splineKnot)
+    IEnumerator transitionToRope(Vector3 splineKnot)
     {
         float elapsed = 0f;
         Vector3 startPlayerPos = this.transform.position;
@@ -344,6 +349,17 @@ public class PlayerMovement : MonoBehaviour
             float t = Mathf.Clamp01(elapsed / 1f);
             this.transform.rotation = Quaternion.RotateTowards(startRotation, targetRotation, t);
             this.transform.position = Vector3.Lerp(startPlayerPos, splineKnot + new Vector3(5,0,0), t);
+            yield return null;
+        }
+    }
+
+    // this enumerator moves character down the rope
+    IEnumerator climbRope(Vector3 knot0, Vector3 knotLast)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < 1f)
+        {
             yield return null;
         }
     }
