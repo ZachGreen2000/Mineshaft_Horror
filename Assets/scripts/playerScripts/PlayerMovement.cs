@@ -57,6 +57,7 @@ public class PlayerMovement : MonoBehaviour
     public GameObject playerArms;
     public List<SplineContainer> splines = new List<SplineContainer>(); // initialises list
     private SplineContainer spline1;
+    public SplineContainer entranceSpline;
 
     public static PlayerMovement Instance;
     // enables player action map from input system
@@ -320,6 +321,30 @@ public class PlayerMovement : MonoBehaviour
             //Vector3 camEuler = cam.transform.localEulerAngles;
             cameraPitch = Mathf.Clamp(cameraPitch, -30, 90);
             cam.transform.localEulerAngles = new Vector3(cameraPitch, 0, 0);
+        }
+    }
+
+    // this function is for climbing down the rope at the entrance
+    public void moveToRope()
+    {
+
+    }
+
+    //enumerator for positioning on spline
+    IEnumerator transitionToRope(Vector3 crawlTarg, Vector3 splineKnot)
+    {
+        float elapsed = 0f;
+        Vector3 startPlayerPos = this.transform.position;
+        Quaternion startRotation = this.transform.rotation;
+        Quaternion targetRotation = Quaternion.LookRotation(splineKnot, Vector3.up);
+
+        while (elapsed < 1f) // (Vector3.Distance(cam.transform.localPosition, crawlTarget) > 0.05f)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / 1f);
+            this.transform.rotation = Quaternion.RotateTowards(startRotation, targetRotation, t);
+            this.transform.position = Vector3.Lerp(startPlayerPos, splineKnot + new Vector3(5,0,0), t);
+            yield return null;
         }
     }
 }
