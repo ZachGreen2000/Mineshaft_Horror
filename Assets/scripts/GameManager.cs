@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
 
     private List<string> pickedItems;
+    public bool canCave = false;
 
     void Awake()
     {

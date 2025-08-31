@@ -40,6 +40,7 @@ public class PlayerMovement : MonoBehaviour
     public bool isOnSpline = false;
     public bool canWalk = true;
     private float splinePos = 0f;
+    private bool isRotatable = true;
 
     [Header("Camera Variables")]
     public float targetFov;
@@ -108,6 +109,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         HandleCameraRotation();
+        
         // to ovveride crawl animation
         if (canWalk)
         {
@@ -127,7 +129,7 @@ public class PlayerMovement : MonoBehaviour
         if (canWalk)
         {
             Walking();
-            Rotating();
+            if (isRotatable) { Rotating(); }
         }
         
     }
@@ -330,37 +332,45 @@ public class PlayerMovement : MonoBehaviour
         BezierKnot knot0Local = entranceSpline.Spline.Knots.ElementAt(0);
         Vector3 knot0World = entranceSpline.transform.TransformPoint(knot0Local.Position);
         StartCoroutine(transitionToRope(knot0World));
-        BezierKnot lastKnotLocal = entranceSpline.Spline.Knots.ElementAt(spline1.Spline.Knots.Count() - 1);
-        Vector3 lastKnotWorld = entranceSpline.transform.TransformPoint(lastKnotLocal.Position);
-        StartCoroutine(climbRope(knot0World, lastKnotWorld));
     }
 
     //enumerator for positioning on spline
     IEnumerator transitionToRope(Vector3 splineKnot)
     {
+        isRotatable = false;
         float elapsed = 0f;
         Vector3 startPlayerPos = this.transform.position;
         Quaternion startRotation = this.transform.rotation;
-        Quaternion targetRotation = Quaternion.LookRotation(splineKnot, Vector3.up);
+        Vector3 direction = (splineKnot - startPlayerPos);
+        float angle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+        Quaternion targetRotation = Quaternion.Euler(0, angle + 105, 0);
 
-        while (elapsed < 1f) // (Vector3.Distance(cam.transform.localPosition, crawlTarget) > 0.05f)
+        while (elapsed < 2f) 
         {
             elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsed / 1f);
-            this.transform.rotation = Quaternion.RotateTowards(startRotation, targetRotation, t);
-            this.transform.position = Vector3.Lerp(startPlayerPos, splineKnot + new Vector3(5,0,0), t);
+            float t = Mathf.Clamp01(elapsed / 2f);
+            this.transform.rotation = Quaternion.Slerp(startRotation, targetRotation, t);
+            this.transform.position = Vector3.Lerp(startPlayerPos, splineKnot + new Vector3(0,0,0), t);
             yield return null;
         }
+        BezierKnot lastKnotLocal = entranceSpline.Spline.Knots.ElementAt(entranceSpline.Spline.Knots.Count() - 1);
+        Vector3 lastKnotWorld = entranceSpline.transform.TransformPoint(lastKnotLocal.Position);
+        StartCoroutine(climbRope(splineKnot, lastKnotWorld));
     }
 
     // this enumerator moves character down the rope
     IEnumerator climbRope(Vector3 knot0, Vector3 knotLast)
     {
         float elapsed = 0f;
-
-        while (elapsed < 1f)
+        //Debug.Log("running");
+        while (elapsed < 5f)
         {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / 5f);
+            this.transform.position = Vector3.Lerp(knot0, knotLast, t);
             yield return null;
         }
+        isRotatable = true;
+        //Debug.Log("finished");
     }
 }
