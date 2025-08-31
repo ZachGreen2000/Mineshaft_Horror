@@ -19676,7 +19676,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -34106,6 +34106,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2090398739}
     - target: {fileID: 1759416421878635106, guid: f72d94074ada75d408c50c826a43d422, type: 3}
+      propertyPath: entranceSpline
+      value: 
+      objectReference: {fileID: 1879887963}
+    - target: {fileID: 1759416421878635106, guid: f72d94074ada75d408c50c826a43d422, type: 3}
       propertyPath: splines.Array.size
       value: 6
       objectReference: {fileID: 0}
@@ -47128,6 +47132,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46cc140ae0f7d5946b09815488cb8e1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  canCave: 0
 --- !u!4 &1743725835
 Transform:
   m_ObjectHideFlags: 0
@@ -50054,10 +50059,10 @@ MonoBehaviour:
         z: 0.3120033
       Rotation:
         value:
-          x: 0.5242751
-          y: 0.29589996
-          z: -0.20073026
-          w: 0.77284294
+          x: 0.2953839
+          y: -0.52456594
+          z: 0.7730401
+          w: 0.19996963
     - Position:
         x: 0.77031326
         y: -2.8989997
@@ -54754,6 +54759,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 62e06eed7e8199c4d88483a3fc561f00, type: 3}
       propertyPath: m_Name
       value: mineArchFallenUnwrapped (6)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 62e06eed7e8199c4d88483a3fc561f00, type: 3}
+      propertyPath: m_TagString
+      value: entranceZone
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -6,6 +6,7 @@ TagManager:
   tags:
   - crawlZone
   - candle
+  - entranceZone
   layers:
   - Default
   - TransparentFX
