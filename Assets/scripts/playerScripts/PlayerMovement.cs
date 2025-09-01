@@ -338,6 +338,7 @@ public class PlayerMovement : MonoBehaviour
     IEnumerator transitionToRope(Vector3 splineKnot)
     {
         isRotatable = false;
+        playerArms.SetActive(false);
         float elapsed = 0f;
         Vector3 startPlayerPos = this.transform.position;
         Quaternion startRotation = this.transform.rotation;
@@ -371,6 +372,7 @@ public class PlayerMovement : MonoBehaviour
             yield return null;
         }
         isRotatable = true;
+        playerArms.SetActive(true);
         //Debug.Log("finished");
     }
 }
