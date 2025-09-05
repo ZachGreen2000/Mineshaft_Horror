@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviour
     public void itemPickUp(string tag)
     {
         pickedItems.Add(tag);
+        if (tag == "candle") { canCave = true; }
         // UI needs to be made
     }
 
