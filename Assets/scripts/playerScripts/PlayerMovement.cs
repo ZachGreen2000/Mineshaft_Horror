@@ -344,7 +344,7 @@ public class PlayerMovement : MonoBehaviour
         Quaternion startRotation = this.transform.rotation;
         Vector3 direction = (splineKnot - startPlayerPos);
         float angle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
-        Quaternion targetRotation = Quaternion.Euler(0, angle + 105, 0);
+        Quaternion targetRotation = Quaternion.Euler(0, angle + 110, 0);
 
         while (elapsed < 2f) 
         {
